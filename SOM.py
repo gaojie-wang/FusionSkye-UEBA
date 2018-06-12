@@ -20,7 +20,7 @@ def parseCSVstring(string):
 training_sample_size = 20000
 testing_sample_size = 500
 
-csvfile = open("sum.csv")
+csvfile = open("CMB_1.csv")
 reader = csv.reader(csvfile, delimiter = " ")
 training_data = []
 testing_data = []
