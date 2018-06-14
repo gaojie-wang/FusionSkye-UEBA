@@ -199,3 +199,79 @@ def Model_IsolationForest(dataset,best_contamination=0.01):
     return clst_labels,new_scores
     
     
+def Gs_LocalOutlierFactor_parameter(dataset):
+    '''
+    寻找最优的neighbors和contamination参数
+    dataset：数据样本
+    '''
+    X = dataset
+    data_shape = len(X)
+    neighbors = [15,20,25,30,35,40]
+    estimators = [-1,-5,-10,-50,-100,-150,-200,-300,-500,-1000,-10000]
+    evalue = []
+    mvalue = []
+    for neighbor in neighbors:
+        clst = LocalOutlierFactor(n_neighbors=neighbor)
+        clst.fit(X)
+        neighbor_scores= clst.negative_outlier_factor_
+        neighbor_contamination_ratio = round(len([i for i in neighbor_scores if i<-1])/data_shape,6)
+        if neighbor_contamination_ratio > 0:
+            evalue.append(neighbor_contamination_ratio)
+        else :
+            evalue.append(-1)
+    if len(evalue) == evalue.count(-1):
+        raise NameError('Empty Sequence')
+    eindex = evalue.index(max(evalue))
+    best_neighbor = neighbors[eindex]
+    print "Evaluate Ratio: %s" % evalue
+    print "Neighbor Value: %s" % neighbors
+    print "============================================="
+    clst = LocalOutlierFactor(n_neighbors=best_neighbor)
+    clst.fit(X)
+    scores_pred = clst.negative_outlier_factor_
+    #选出异常度最小的值   
+    for estimator in estimators:
+        #只要evalue中有100了，就说明目前的异常度已经最小，减小重复计算
+        if 100 not in evalue:
+            contamination_ratio = round(len([i for i in scores_pred if i<estimator])/data_shape,6)
+        else :
+            contamination_ratio = -1
+        if contamination_ratio > 0:
+            mvalue.append(contamination_ratio)
+        else :
+            mvalue.append(100)
+    if len(mvalue) == mvalue.count(100):
+        raise NameError('Empty Sequence')
+    mindex = mvalue.index(min(mvalue))
+    best_estimator = estimators[mindex]
+    best_contamination = min(mvalue)
+    print "Contamination Ratio: %s" % mvalue
+    print "Estimator Value: %s" % [abs(i) for i in estimators]
+    print "============================================="
+    print "Best Neighbor: %s" % best_neighbor
+    print "Best Estimator: %s" % abs(best_estimator)
+    print "Best Contamination: %s" % best_contamination
+    print "============================================="
+    
+    return best_neighbor,best_contamination
+
+def Model_LocalOutlierFactor(dataset,best_neighbor=20,best_contamination=0.01):
+    '''
+    使用Local Outlier Factor聚类结果为数据贴标签
+    dataset:数据样本
+    '''
+    X = dataset
+    
+    clst = LocalOutlierFactor(n_neighbors = best_neighbor,contamination = best_contamination)
+    
+    clst_labels = clst.fit_predict(X)
+    scores_pred = clst.negative_outlier_factor_
+    new_scores = [round(abs(i),4) for i in scores_pred]
+        
+    for clst_lab in set(clst_labels):
+        print "Number of the %s class: %s" % (clst_lab,list(clst_labels).count(clst_lab))
+    print "============================================="
+    print "Number of the labels: %s" % len(clst_labels)
+    print "============================================="
+    
+    return clst_labels,new_scores

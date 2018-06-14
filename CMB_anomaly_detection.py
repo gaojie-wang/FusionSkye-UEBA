@@ -120,9 +120,24 @@ itest = preprocess(testing_data)
 #And discover anomalies
 if learning_model == "I":
 	labels, scores = Model_IsolationForest(itrain)
+	print("Learning model selected is Isolation Forest")
 elif learning_model == "D":
 	labels, scores = Model_DBSCAN(itrain)
-#elif learning_model == "L":
+	print("Learning model selected is DBSCAN")
+elif learning_model == "L":
+	labels, scores = Model_LocalOutlierFactor(itrain)
+	print("Learning model selected is Local Outlier Factor")
+
+
+anomalies = []
+#store the anomalous data
+for i in range(len(training_data)):
+	if labels[i] == -1:
+		anomalies += (training_data[i], scores[i])
+
+#print the anomalous data
+print(anomalies)
+
 
 
 if PCA_dims == 2:
