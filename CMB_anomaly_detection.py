@@ -50,8 +50,23 @@ reader = csv.reader(csvfile, delimiter = " ")
 training_data = []
 testing_data = []
 counter = 0
+
+#Hyperparameters
+#Largest account is 5146C761F90BC0B17307EC91B47BE4AA
+account_name = "5146C761F90BC0B17307EC91B47BE4AA"
+
 dims = [3,21,22]
-account_name = ""
+#Possible learning models:
+#"I": isolation forest
+#"D": DBSCAN
+#"L": Local Outlier Factor
+learning_model = "I"
+#PCA dimension
+#2 or 3
+PCA_dims = 2
+
+
+
 
 #All dims of CMB data that are potentially useful
 #I have deleted all irrelevant dimensions
@@ -100,24 +115,38 @@ def preprocess(data):
 itrain = preprocess(training_data)
 itest = preprocess(testing_data)
 
-labels, scores = Model_IsolationForest(itrain)
 
-#PCA dimensionality reduction
-itrain_process = Model_PCA(itrain, 3)
-itrain_process = itrain_process.T
+#Use the selected model to do unsupervised ML
+#And discover anomalies
+if learning_model == "I":
+	labels, scores = Model_IsolationForest(itrain)
+elif learning_model == "D":
+	labels, scores = Model_DBSCAN(itrain)
+#elif learning_model == "L":
 
-x = itrain_process[0]
-y = itrain_process[1]
 
-z = itrain_process[2]
+if PCA_dims == 2:
+	#PCA dimensionality reduction
+	itrain_process = Model_PCA(itrain, 2)
+	itrain_process = itrain_process.T
+	x = itrain_process[0]
+	y = itrain_process[1]
 
-#Use mathplotlib to visualize data
-ax = plt.subplot(111, projection='3d')
-#ax = plt.subplot(111)
+	#Use mathplotlib to visualize data
+	ax = plt.subplot(111)
+	ax.scatter(x, y)
 
-ax.scatter(x, y, z)
-
-#ax.scatter(x, y)
+elif PCA_dims == 3:
+	#PCA dimensionality reduction
+	itrain_process = Model_PCA(itrain, 3)
+	itrain_process = itrain_process.T
+	x = itrain_process[0]
+	y = itrain_process[1]
+	z = itrain_process[2]
+	
+	#Use mathplotlib to visualize data
+	ax = plt.subplot(111, projection='3d')
+	ax.scatter(x, y, z)
 
 plt.show()
 
