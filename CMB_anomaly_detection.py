@@ -13,14 +13,14 @@ __author__ = "Haoran Fei <hfei@andrew.cmu.edu>"
 
 #some code written by Su Yumo <suym@buaa.edu.cn>
 
-def parseCSVstring(string):
+def parseCSVstring(string): 
 	list = []
 	start = 0
 	for i in range(len(string)):
 		if string[i] == ',':
 			list.append(string[start:i])
 			start = i+1
-	list.append(string[start:i])
+	list.append(string[start:len(string)])
 	return list
 
 
@@ -76,7 +76,16 @@ PCA_dims = 2
 
 for row in reader:
 	#parse the csv string to a list of strings
-	completeCSV = parseCSVstring(row[0]) + parseCSVstring(row[1])
+	list1 = parseCSVstring(row[0])
+	list2 = parseCSVstring(row[1])
+
+	#we construct completeCSV this way because the csv reader will break
+	#up one csv string to 2 strings, and the breaking point is in the middle
+	#of a field. Thus, one dimension(i.e. string) will be broken up to 2.
+	#We must put them back together
+	completeCSV = list1[:-1] 
+	completeCSV.append(list1[-1] + " " + list2[0])
+	completeCSV += list2[1:]
 	
 	#filter by account, if applicable
 	if filteraccount(completeCSV, account_name):
@@ -112,6 +121,14 @@ def preprocess(data):
 	integer_encoded = np.array(integer_encoded)
 	return integer_encoded
 
+#Take the ith column of data (a list of lists) and return it as a list
+def column(data, i):
+	output = []
+	for j in range(len(data)):
+		output.append(data[j][i])
+	return output
+
+
 itrain = preprocess(training_data)
 itest = preprocess(testing_data)
 
@@ -128,18 +145,29 @@ elif learning_model == "L":
 	labels, scores = Model_LocalOutlierFactor(itrain)
 	print("Learning model selected is Local Outlier Factor")
 
-
-anomalies = []
+anomaly_data = []
+anomaly_score = []
 #store the anomalous data
 for i in range(len(training_data)):
 	if labels[i] == -1:
-		anomalies += (training_data[i], scores[i])
+		anomaly_data.append(training_data[i])
+		anomaly_score.append(scores[i])
+
+anomalies = zip(anomaly_data, anomaly_score)
+
+original = plt.subplot(111)
+x = column(anomaly_data, 1)
+y = column(anomaly_data, 2)
+original.scatter(x, y)
+
 
 #print the anomalous data
-print(anomalies)
+for data, score in anomalies:
+	print("Anomalous data: ")
+	print(data)
+	print(" Score: %.3f" % score + "\n")
 
-
-
+'''
 if PCA_dims == 2:
 	#PCA dimensionality reduction
 	itrain_process = Model_PCA(itrain, 2)
@@ -162,7 +190,7 @@ elif PCA_dims == 3:
 	#Use mathplotlib to visualize data
 	ax = plt.subplot(111, projection='3d')
 	ax.scatter(x, y, z)
-
+'''
 plt.show()
 
 #print(filterdimensions([1,2,3,4], [0,2]))
