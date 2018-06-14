@@ -130,9 +130,8 @@ dims = [3,21,22]
 
 #Possible learning models:
 #"I": isolation forest
-#"D": DBSCAN
 #"L": Local Outlier Factor
-learning_model = "D"
+learning_model = "L"
 
 #Visulization model
 #"PCA": PCA
@@ -196,9 +195,6 @@ itest = preprocess(testing_data)
 if learning_model == "I":
 	labels, scores = Model_IsolationForest(itrain)
 	print("Learning model selected is Isolation Forest")
-elif learning_model == "D":
-	labels, scores = Model_DBSCAN(itrain)
-	print("Learning model selected is DBSCAN")
 elif learning_model == "L":
 	labels, scores = Model_LocalOutlierFactor(itrain)
 	print("Learning model selected is Local Outlier Factor")
