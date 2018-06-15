@@ -3,7 +3,7 @@ from matplotlib.font_manager import FontProperties
 from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
 import numpy as np
-from time import time
+import time
 from keras.utils import to_categorical
 from sklearn.preprocessing import LabelEncoder
 import csv 
@@ -111,6 +111,9 @@ def visualize(data_process, viz_dims):
 
 	plt.show()
 
+#Start calculating runtime
+start_time = time.time()
+
 
 #File Configs and Global Settings
 training_sample_size = 20000
@@ -118,9 +121,14 @@ testing_sample_size = 500
 
 csvfile = open("CMB_1.csv")
 reader = csv.reader(csvfile, delimiter = " ")
+
+#Initial data
+#Parsed, but not filtered for accounts or dimensions
+raw_data = []
+
 training_data = []
+training_index = []
 testing_data = []
-counter = 0
 
 #Hyperparameters
 #Largest account is 5146C761F90BC0B17307EC91B47BE4AA
@@ -151,7 +159,7 @@ select_num = 15
 #based on information provided by CMB officials
 #[3,6,12,13,14,15,16,17,20,21,22,23,24,28,29,30,56,57,59]
 
-
+counter = 0
 for row in reader:
 	#parse the csv string to a list of strings
 	list1 = parseCSVstring(row[0])
@@ -164,7 +172,8 @@ for row in reader:
 	completeCSV = list1[:-1] 
 	completeCSV.append(list1[-1] + " " + list2[0])
 	completeCSV += list2[1:]
-	
+	raw_data.append(completeCSV)
+
 	#filter by account, if applicable
 	if filteraccount(completeCSV, account_name):
 
@@ -174,6 +183,7 @@ for row in reader:
 		#Add to training or testing data
 		if(counter < training_sample_size):
 			training_data.append(paramlist)
+			training_index.append(counter)
 		else:
 			testing_data.append(paramlist)
 	
@@ -200,18 +210,24 @@ elif learning_model == "L":
 	print("Learning model selected is Local Outlier Factor")
 
 
-print(scores)
-
-
 anomaly_data = []
+anomaly_index = []
 anomaly_score = []
 #store the anomalous data
 for i in range(len(training_data)):
 	if labels[i] == -1:
 		anomaly_data.append(training_data[i])
+		anomaly_index.append(training_index[i])
 		anomaly_score.append(scores[i])
 
-anomalies = zip(anomaly_data, anomaly_score)
+
+#Visualize all data
+all_amounts = take_columns(training_data, [1, 2])
+all_amounts = np.array(all_amounts)
+all_amounts = all_amounts.T
+visualize(all_amounts, 2)
+
+
 
 #Take the 2nd and 3rd column of anomaly data
 #I.e. the columns without account name
@@ -221,20 +237,28 @@ anomaly_amounts = np.array(anomaly_amounts)
 anomaly_amounts = anomaly_amounts.T
 visualize(anomaly_amounts, 2)
 
-select_anomalies = sorted(anomalies, key=itemgetter(1), reverse = True)
+
+anomalies = zip(anomaly_data, anomaly_index, anomaly_score)
+
+select_anomalies = sorted(anomalies, key=itemgetter(2), reverse = True)
 select_anomalies = select_anomalies[:select_num]
 
 
 #print the anomalous data
-for data, score in select_anomalies:
+for data, index, score in select_anomalies:
 	print("Anomalous data: ")
 	print(data)
-	print(" Score: %.3f" % score + "\n")
+	print("Event number: ")
+	print(raw_data[index][0])
+	print("Score: %.3f" % score + "\n")
 
 #Visualization
 reduced = dim_reduce(itrain, viz_model, viz_dims)
 visualize(reduced, viz_dims)
 
+
+#Display runtime
+print("--- %s seconds ---" % (time.time() - start_time))
 
 #print(filterdimensions([1,2,3,4], [0,2]))
 #print(filterdimensions([1,2,3,4], [0,1,3]))

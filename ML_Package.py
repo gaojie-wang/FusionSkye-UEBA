@@ -14,6 +14,7 @@ import pandas as pd
 from sklearn.cluster import DBSCAN
 from sklearn.ensemble import IsolationForest 
 from sklearn import metrics
+from sklearn.neighbors import LocalOutlierFactor
 from sklearn.decomposition import PCA
 
 
