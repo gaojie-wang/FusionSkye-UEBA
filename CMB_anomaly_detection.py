@@ -92,11 +92,14 @@ def dim_reduce(data, viz_model, viz_dims):
 #Reduce to viz_dims
 #Input: data_process is a 2-d array, but it has to be in Transpose!
 def visualize(data_process, viz_dims):
+	pass
+	#Dummy
+	'''
 	if viz_dims == 2:
 		x = data_process[0]
 		y = data_process[1]
 
-		#Use mathplotlib to visualize data
+		Use mathplotlib to visualize data
 		ax = plt.subplot(111)
 		ax.scatter(x, y)
 	
@@ -105,11 +108,12 @@ def visualize(data_process, viz_dims):
 		y = data_process[1]
 		z = data_process[2]
 	
-		#Use mathplotlib to visualize data
+		Use mathplotlib to visualize data
 		ax = plt.subplot(111, projection='3d')
 		ax.scatter(x, y, z)
 
 	plt.show()
+	'''
 
 #Start calculating runtime
 start_time = time.time()
