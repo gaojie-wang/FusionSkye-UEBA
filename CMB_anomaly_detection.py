@@ -1,4 +1,5 @@
 import matplotlib.pylab as plt
+import time
 from matplotlib.font_manager import FontProperties
 from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
@@ -110,6 +111,10 @@ def visualize(data_process, viz_dims):
 		ax.scatter(x, y, z)
 
 	plt.show()
+
+
+#Start Counting Program Runtime
+start_time = time.time()
 
 
 #File Configs and Global Settings
@@ -234,6 +239,9 @@ for data, score in select_anomalies:
 #Visualization
 reduced = dim_reduce(itrain, viz_model, viz_dims)
 visualize(reduced, viz_dims)
+
+#Print Runtime
+print("--- %s seconds ---" % (time.time() - start_time))
 
 
 #print(filterdimensions([1,2,3,4], [0,2]))
