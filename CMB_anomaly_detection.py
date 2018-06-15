@@ -120,7 +120,7 @@ start_time = time.time()
 
 
 #File Configs and Global Settings
-training_sample_size = 20000
+training_sample_size = 700000
 testing_sample_size = 500
 
 csvfile = open("CMB_1.csv")
