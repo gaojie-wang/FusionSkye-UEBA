@@ -138,7 +138,7 @@ testing_data = []
 #Largest account is 5146C761F90BC0B17307EC91B47BE4AA
 account_name = "5146C761F90BC0B17307EC91B47BE4AA"
 
-dims = [3,21,22]
+dims = [21,22]
 
 #Possible learning models:
 #"I": isolation forest
