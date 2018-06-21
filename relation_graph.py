@@ -68,9 +68,9 @@ start_time = time.time()
 
 
 #File Configs and Global Settings
-sample_size = 700000
+sample_size = 3000000
 
-csvfile = open("CMB_1.csv")
+csvfile = open("total_data.csv")
 reader = csv.reader(csvfile, delimiter = " ")
 
 #Largest account is 5146C761F90BC0B17307EC91B47BE4AA
