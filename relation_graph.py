@@ -81,6 +81,7 @@ graph_node = Set()
 #Graph data stored as adjacency list, implemented as dict of dicts
 graph_dict_by_transaction = {}
 graph_dict_by_amount = {}
+graph_dict_directed = {}
 
 
 
@@ -119,12 +120,13 @@ grouped_data = group_by(data, 1)
 for node in graph_node:
 	graph_dict_by_transaction[node] = {}
 	graph_dict_by_amount[node] = {}
-
+	graph_dict_directed[node] = {}
 
 for node in graph_node:
 	for node2 in graph_node:
 		graph_dict_by_transaction[node][node2] = 0
 		graph_dict_by_amount[node][node2] = 0
+		graph_dict_directed[node][node2] = 0
 
 for group, vectors in grouped_data.iteritems():
 	L = len(vectors)
@@ -139,19 +141,29 @@ for group, vectors in grouped_data.iteritems():
 
 				#increment weight by absolute value of transaction amount
 				graph_dict_by_amount[account1][account2] += abs(float(vectors[i][2]))
+			#Funds flow from account1 to account2
+			if account1 != account2 and vectors[i][1] == "D" and vectors[j][1] == "C":
+				graph_dict_directed[account1][account2] += 1
 
 
 
 #Start creating networkx graph
 #G1: only counts number of transaction 
 #G2: counts transaction amounts
+#G3: only counts number of transactions, but only include edges with >=10 transactions
+#G4: only counts number of transactions, but only include edges with >=10 transactions
+#G4 is directed. Direction is determined by transaction direction, taking majority vote
 G1 = nx.Graph()
 G2 = nx.Graph()
+G3 = nx.Graph()
+G4 = nx.DiGraph()
 
 for node in graph_node:
 	rand_pos = (randint(0, len(graph_node)), randint(0, len(graph_node)))
 	G1.add_node(node, pos=rand_pos)
 	G2.add_node(node, pos=rand_pos)
+	G3.add_node(node, pos=rand_pos)
+	G4.add_node(node, pos=rand_pos)
 
 #Build the first graph
 for node1, ndict in graph_dict_by_transaction.iteritems():
@@ -167,10 +179,33 @@ for node1, ndict in graph_dict_by_amount.iteritems():
 		if abs(w) >= 0.00000001:
 			G2.add_edge(node1, node2, weight=w)
 
+#Build the third graph
+for node1, ndict in graph_dict_by_transaction.iteritems():
+	for node2, w in ndict.iteritems():
+		#if weight is at least 10
+		if w >= 10:
+			G3.add_edge(node1, node2, weight=w)
+
+#Build the fourth graph
+for node1, ndict in graph_dict_directed.iteritems():
+	for node2, w in ndict.iteritems():
+		#get weight of reverse direction
+		reverse_w = graph_dict_directed[node2][node1]
+		sum_w = w + reverse_w
+		if sum_w >= 10:
+			if w >= reverse_w:
+				#To yield floating point values
+				percentage = (w*1.0 /sum_w) * 100
+				print("Transactions from node1 to node2 is: {}".format(w))
+				print("Transactions from node2 to node1 is: {}".format(reverse_w))
+				print("Transactions percentage is : {}".format(percentage))
+				G4.add_edge(node1, node2, weight=percentage)
+
 
 #Draw both labeled graphs
-draw_labeled_graph(G1, 1)
-draw_labeled_graph(G2, 2)
-
+#draw_labeled_graph(G1, 1)
+#draw_labeled_graph(G2, 2)
+#draw_labeled_graph(G3, 3)
+draw_labeled_graph(G4, 4)
 
 
