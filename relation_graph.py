@@ -8,6 +8,9 @@ from operator import itemgetter
 import networkx as nx
 from random import randint
 from sets import Set 
+import pygraphviz as pgv
+
+
 
 __author__ = "Haoran Fei <hfei@andrew.cmu.edu>"
 
@@ -53,14 +56,49 @@ def group_by(data, dim):
 	return dict  
 
 #Draw a labeled nx graph
-def draw_labeled_graph(G, num):	
-	pos=nx.get_node_attributes(G,'pos')
-	nx.draw(G,pos, with_labels=True)
+def draw_labeled_graph(A, num):	
+	#pos=nx.get_node_attributes(G,'pos')
+	#pos = nx.circular_layout(G, scale=0.07)
+
+	#plt.figure(num=None, figsize=(11.4, 6.69), dpi=300)
+
+	#Change to pygraphviz graph
+	#A = nx.nx_agraph.to_agraph(G)
+	
+
+	A.graph_attr['dpi'] = 300
+	A.graph_attr['mindist'] = 8
+	A.graph_attr['minlen'] = 8
+
+	A.node_attr['color'] = 'red'
+	A.node_attr["fixedsize"] = True
+	A.node_attr["width"] = 0.25
+	A.node_attr["height"] = 0.25
+	A.node_attr["fontsize"] = 6
+
+	A.edge_attr['color'] = 'black'
+	A.edge_attr['arrow_size'] = 0.5
+	A.edge_attr['len'] = 1
+	A.edge_attr['labelfontsize'] = 2
+	A.layout(prog = 'dot')
+
+	A.draw("relation_graph_{}.png".format(num))
+
+	'''
+	pos = graphviz_layout(G, prog='dot')
+
+	nx.draw(G, pos, with_labels=False, node_color='#A0CBE2', width=2)
+	
 	labels = nx.get_edge_attributes(G,'weight')
 	nx.draw_networkx_edge_labels(G,pos,edge_labels=labels)
-	#Figure size equal to the screen size of a 13.3inch laptop
-	plt.savefig("relation_graph_{}.png".format(num), dpi=300, fig_size=(11.4, 6.69))
+	
+	#Figure size equal to the screen size of a 13.3 inch laptop
+
+	
+	plt.savefig("relation_graph_{}.png".format(num))
 	plt.show()
+	'''
+
 
 
 #Start calculating runtime
@@ -101,7 +139,7 @@ for row in reader:
 	data.append(completeCSV)
 
 	#add all accounts to graph_node
-	account = completeCSV[3]
+	account = completeCSV[3][-4:]
 	if account not in graph_node:
 		graph_node.add(account)
 
@@ -132,8 +170,8 @@ for group, vectors in grouped_data.iteritems():
 	L = len(vectors)
 	for i in range(L):
 		for j in range(L):
-			account1 = vectors[i][0]
-			account2 = vectors[j][0]
+			account1 = vectors[i][0][-4:]
+			account2 = vectors[j][0][-4:]
 			#Different account, different transaction direction
 			if account1 != account2 and vectors[i][1] != vectors[j][1]:
 				#increment weight by 1 since weight represents number of transactions
@@ -153,38 +191,58 @@ for group, vectors in grouped_data.iteritems():
 #G3: only counts number of transactions, but only include edges with >=10 transactions
 #G4: only counts number of transactions, but only include edges with >=10 transactions
 #G4 is directed. Direction is determined by transaction direction, taking majority vote
-G1 = nx.Graph()
-G2 = nx.Graph()
-G3 = nx.Graph()
-G4 = nx.DiGraph()
+#G4's edge weight is percentage of majority direction 
+#G5: only counts number of transactions, but only include edges with >=10 transactions
+#G5 is directed. Direction is determined by transaction direction, taking majority vote
+#G5's edge weight is number of transactions of majority direction
+#G6: only counts number of transactions, but only include edges with >=10 transactions
+#G6 is directed. Direction is determined by transaction direction, taking majority vote
+#G6 has no edge weight
+
+G1 = pgv.AGraph()
+G2 = pgv.AGraph()
+G3 = pgv.AGraph()
+G4 = pgv.AGraph(directed = True)
+G5 = pgv.AGraph(directed = True)
+G6 = pgv.AGraph(directed = True)
 
 for node in graph_node:
-	rand_pos = (randint(0, len(graph_node)), randint(0, len(graph_node)))
+	#rand_pos = (randint(0, len(graph_node)), randint(0, len(graph_node)))
+	'''
 	G1.add_node(node, pos=rand_pos)
 	G2.add_node(node, pos=rand_pos)
 	G3.add_node(node, pos=rand_pos)
 	G4.add_node(node, pos=rand_pos)
+	'''
+
+	G1.add_node(node)
+	G2.add_node(node)
+	G3.add_node(node)
+	G4.add_node(node)
+	G5.add_node(node)
+	G6.add_node(node)
+
 
 #Build the first graph
 for node1, ndict in graph_dict_by_transaction.iteritems():
 	for node2, w in ndict.iteritems():
 		#If weight is none-zero
 		if w != 0:
-			G1.add_edge(node1, node2, weight=w)
+			G1.add_edge(node1, node2, label = str(w))
 
 #Build the second graph
 for node1, ndict in graph_dict_by_amount.iteritems():
 	for node2, w in ndict.iteritems():
 		#if weight is non-zero
 		if abs(w) >= 0.00000001:
-			G2.add_edge(node1, node2, weight=w)
+			G2.add_edge(node1, node2, label = str(w))
 
 #Build the third graph
 for node1, ndict in graph_dict_by_transaction.iteritems():
 	for node2, w in ndict.iteritems():
 		#if weight is at least 10
 		if w >= 10:
-			G3.add_edge(node1, node2, weight=w)
+			G3.add_edge(node1, node2, label = str(w))
 
 #Build the fourth graph
 for node1, ndict in graph_dict_directed.iteritems():
@@ -196,16 +254,40 @@ for node1, ndict in graph_dict_directed.iteritems():
 			if w >= reverse_w:
 				#To yield floating point values
 				percentage = (w*1.0 /sum_w) * 100
+				#Rounding the percentage to 0.01%
+				percentage = round(percentage, 2)
 				print("Transactions from node1 to node2 is: {}".format(w))
 				print("Transactions from node2 to node1 is: {}".format(reverse_w))
 				print("Transactions percentage is : {}".format(percentage))
-				G4.add_edge(node1, node2, weight=percentage)
+				G4.add_edge(node1, node2, label = str(percentage) + "%")
+
+#Build the fifth graph
+for node1, ndict in graph_dict_directed.iteritems():
+	for node2, w in ndict.iteritems():
+		#get weight of reverse direction
+		reverse_w = graph_dict_directed[node2][node1]
+		sum_w = w + reverse_w
+		if sum_w >= 10:
+			if w >= reverse_w:
+				G5.add_edge(node1, node2, label = str(w) + "/" + str(reverse_w))
+
+#Build the sixth graph
+for node1, ndict in graph_dict_directed.iteritems():
+	for node2, w in ndict.iteritems():
+		#get weight of reverse direction
+		reverse_w = graph_dict_directed[node2][node1]
+		sum_w = w + reverse_w
+		if sum_w >= 10:
+			if w >= reverse_w:
+				G6.add_edge(node1, node2)
 
 
 #Draw both labeled graphs
-#draw_labeled_graph(G1, 1)
-#draw_labeled_graph(G2, 2)
-#draw_labeled_graph(G3, 3)
+draw_labeled_graph(G1, 1)
+draw_labeled_graph(G2, 2)
+draw_labeled_graph(G3, 3)
 draw_labeled_graph(G4, 4)
+draw_labeled_graph(G5, 5)
+draw_labeled_graph(G6, 6)
 
 
