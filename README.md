@@ -11,11 +11,16 @@ Numpy
 Python 2.7+ (Python 2 only)
 PyGraphviz
 Pandas
+Matplotlib
 
 Two main scripts: CMB_anomaly_detection.py and relation_graph.py
+
 CMB_anomaly_detection.py produces anomalous results in data
+
 relation_graph.py produces high-quality transaction relationship graphs of different accounts
 
 Usage:
-$ python CMB_anomaly_detection.py
-$ python relation_graph.py
+
+$ python src/CMB_anomaly_detection.py
+
+$ python src/relation_graph.py
