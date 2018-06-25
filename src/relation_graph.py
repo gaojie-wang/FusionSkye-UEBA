@@ -5,7 +5,6 @@ import time
 import csv 
 from ML_Package import *
 from operator import itemgetter
-import networkx as nx
 from random import randint
 from sets import Set 
 import pygraphviz as pgv
@@ -14,8 +13,6 @@ from libBase import get_config_file_path, get_relation_dir
 
 
 __author__ = "Haoran Fei <hfei@andrew.cmu.edu>"
-
-#some code written by Su Yumo <suym@buaa.edu.cn>
 #This script takes in the data from CMB in csv format, and draw
 #a transaction relationship graph using networkx
 
