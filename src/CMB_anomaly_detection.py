@@ -4,6 +4,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
 import numpy as np
 import time
+import sys, os 
 from keras.utils import to_categorical
 from sklearn.preprocessing import LabelEncoder
 import csv 
@@ -14,6 +15,7 @@ from libBase import get_relation_dir, get_config_file_path
 __author__ = "Haoran Fei <hfei@andrew.cmu.edu>"
 
 #some code written by Su Yumo <suym@buaa.edu.cn>
+
 
 def parseCSVstring(string): 
 	list = []
@@ -198,8 +200,10 @@ for row in reader:
 
 
 
-itrain = preprocess(training_data)
-itest = preprocess(testing_data)
+#itrain = preprocess(training_data)
+#itest = preprocess(testing_data)
+
+
 
 
 #Use the selected model to do unsupervised ML
@@ -259,12 +263,13 @@ reduced = dim_reduce(itrain, viz_model, viz_dims)
 visualize(reduced, viz_dims)
 
 
+
+
 #Display runtime
 print("--- %s seconds ---" % (time.time() - start_time))
 
 #print(filterdimensions([1,2,3,4], [0,2]))
 #print(filterdimensions([1,2,3,4], [0,1,3]))
-
 
 
 
