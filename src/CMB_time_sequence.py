@@ -152,17 +152,17 @@ def main():
 
     plt.show()
 
-    path2 = get_config_file_path("total_data.csv", "data")
+    path2 = get_config_file_path("total_data_with_labels.csv", "data")
     #A Pandas DataFrame
     data_complete =pd.read_csv(path2, encoding = 'utf-8')
-    data_complete['记账日期']=pd.to_datetime(data_complete['记账日期'])
+    data_complete[u'记账日期']=pd.to_datetime(data_complete[u'记账日期'])
 
     for date in anomalous_ys:
-        anomalous_trans = data_complete.loc[lambda df: df['记账日期'] == date]
-        anomalous_trans = anomalous_trans.sort("", ascending = False)
+        anomalous_trans = data_complete.loc[lambda df: df[u'记账日期'] == date]
+        anomalous_trans = anomalous_trans.sort(u"交易金额", ascending = False)
 
     for date in turning_ys:
-        turning_trans = data_complete.loc[lambda df: df['记账日期'] == date]
+        turning_trans = data_complete.loc[lambda df: df[u'记账日期'] == date]
 
 
 
