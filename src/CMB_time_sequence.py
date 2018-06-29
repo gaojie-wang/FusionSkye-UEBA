@@ -171,9 +171,9 @@ def main():
     accountB = "FA4A94F378190B6C893E5F45095BE29B"
     accountC = "0DDA75B3AAED571183C62DC7CA00EC48"
 
-    A = data_complete.loc(lambda df: df[u'银行账户编号'] == accountA)
-    B = data_complete.loc(lambda df: df[u'银行账户编号'] == accountB)
-    C = data_complete.loc(lambda df: df[u'银行账户编号'] == accountC)
+    A = data_complete[data_complete[u'银行账户编号'] == accountA]
+    B = data_complete[data_complete[u'银行账户编号'] == accountB]
+    C = data_complete[data_complete[u'银行账户编号'] == accountC]
 
     datagbA = A.groupby(u'记账日期')
     datagbB = B.groupby(u'记账日期')
