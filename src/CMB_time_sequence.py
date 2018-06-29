@@ -161,7 +161,7 @@ def main():
 
     for date in anomalous_ys:
         anomalous_trans = data_complete.loc[lambda df: df[u'记账日期'] == date]
-        anomalous_trans = anomalous_trans.sort(u"交易金额", ascending = False)
+        anomalous_trans = anomalous_trans.sort_values(by = u"交易金额", ascending = False)
 
     for date in turning_ys:
         turning_trans = data_complete.loc[lambda df: df[u'记账日期'] == date]
