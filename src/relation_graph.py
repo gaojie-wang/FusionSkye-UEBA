@@ -93,7 +93,7 @@ start_time = time.time()
 #File Configs and Global Settings
 sample_size = 20000
 
-path = get_config_file_path("total_data.csv", "data")
+path = get_config_file_path("not_equal_0_and_greater_than_9_18.csv", "data")
 #print(path)
 csvfile = open(path)
 reader = csv.reader(csvfile, delimiter = " ")
@@ -112,6 +112,10 @@ graph_dict_directed = {}
 
 counter = 0
 for row in reader:
+
+	if counter == 0:
+		counter += 1
+		continue
 	#parse the csv string to a list of strings
 	list1 = parseCSVstring(row[0])
 	list2 = parseCSVstring(row[1])

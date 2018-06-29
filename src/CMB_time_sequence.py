@@ -43,6 +43,7 @@ def main():
     x = np.log10(abs(x)+0.001)
 
     y = pd.to_datetime(y)
+
     
     #list of lists
     anomalous_dates = []
@@ -145,10 +146,11 @@ def main():
     print(turning_ys)
     print(turning_xs)
 
+    '''
     plt.plot(y, x)
     plt.scatter(anomalous_ys, anomalous_xs, marker = "o", color = "red", s = 400)
     plt.scatter(turning_ys, turning_xs, marker = "^", color = "green", s = 400)            
-    
+    '''
 
     plt.show()
 
@@ -164,6 +166,32 @@ def main():
     for date in turning_ys:
         turning_trans = data_complete.loc[lambda df: df[u'记账日期'] == date]
 
+
+    accountA = "0748E52AB705B4B3D12F057BDEFD898E"
+    accountB = "FA4A94F378190B6C893E5F45095BE29B"
+    accountC = "0DDA75B3AAED571183C62DC7CA00EC48"
+
+    A = data_complete.loc(lambda df: df[u'银行账户编号'] == accountA)
+    B = data_complete.loc(lambda df: df[u'银行账户编号'] == accountB)
+    C = data_complete.loc(lambda df: df[u'银行账户编号'] == accountC)
+
+    datagbA = A.groupby(u'记账日期')
+    datagbB = B.groupby(u'记账日期')
+    datagbC = C.groupby(u'记账日期')
+
+    to_plot_balances = []
+
+    for date in y:
+        dA = datagbA.get_group(date).sort_values(by = '交易记录时间')
+        dB = datagbB.get_group(date).sort_values(by = '交易记录时间')
+        dC = datagbC.get_group(date).sort_values(by = '交易记录时间')
+
+        amountA = dA.last()[u'联机余额']
+        amountB = dB.last()[u'联机余额']
+        amountC = dc.last()[u'联机余额']
+
+        to_plot_balances.append(amountA + accountB + amountC)
+        print(to_plot_balances)
 
 
 if __name__ == "__main__":
