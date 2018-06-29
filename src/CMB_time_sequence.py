@@ -175,16 +175,22 @@ def main():
     B = data_complete[data_complete[u'银行账户编号'] == accountB]
     C = data_complete[data_complete[u'银行账户编号'] == accountC]
 
+    A[u'记账日期'] = pd.to_datetime(A[u'记账日期'])
+    B[u'记账日期'] = pd.to_datetime(B[u'记账日期'])
+    C[u'记账日期'] = pd.to_datetime(C[u'记账日期'])
+
     datagbA = A.groupby(u'记账日期')
     datagbB = B.groupby(u'记账日期')
     datagbC = C.groupby(u'记账日期')
 
+    A[u'记账日期'] = pd.to_datetime(A[u'记账日期'])
+
     to_plot_balances = []
 
     for date in y:
-        dA = datagbA.get_group(date).sort_values(by = '交易记录时间')
-        dB = datagbB.get_group(date).sort_values(by = '交易记录时间')
-        dC = datagbC.get_group(date).sort_values(by = '交易记录时间')
+        dA = datagbA.get_group(date).sort_values(by =  u'交易记录时间')
+        dB = datagbB.get_group(date).sort_values(by = u'交易记录时间')
+        dC = datagbC.get_group(date).sort_values(by = u'交易记录时间')
 
         amountA = dA.last()[u'联机余额']
         amountB = dB.last()[u'联机余额']
