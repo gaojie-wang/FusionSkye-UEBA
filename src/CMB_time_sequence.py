@@ -36,19 +36,30 @@ def compare(x, y):
 def main():
     path = get_config_file_path("E29B_account.csv", "data")
     data_tem = pd.read_csv(path,encoding='utf-8')
+    path = get_config_file_path("E29B_average.csv", "data")
+    data_ave = pd.read_csv(path, encoding = 'uft-8')
 
     x= data_tem[u'交易金额']
     y= data_tem[u'记账日期']
-    
+
+    x2 = data_ave[u'平均金额']
+    y2 = data_ave[u'记账日期']
+   
+ 
     x = np.log10(abs(x)+0.001)
 
     y = pd.to_datetime(y)
-
+    y2 = pd.to_datetime(y2)
     
     #list of lists
     anomalous_dates = []
+    anomalous_past_averages = []
+    anomalous_future_averages = []
+
+
     anomalous_ys = []
     anomalous_xs = []
+
 
     turning_points = []
     turning_ys = []
@@ -60,10 +71,16 @@ def main():
     for i in range(L):
         if i == 0:
             p_average = 0
+	    p_average2 = 0
+
 
             #next 10 days
             future = x[i+1:i+tracking_length+1]
             f_average = np.average(future)
+
+	    future2 = x2[i+1: i + tracking_length + 1]
+	    f_average2 = np.average(future2)
+
 
         elif i < tracking_length:
 
@@ -159,11 +176,18 @@ def main():
     #A Pandas DataFrame
     data_complete =pd.read_csv(path2, encoding = 'utf-8')
     data_complete[u'记账日期']=pd.to_datetime(data_complete[u'记账日期'])
+    data_complete = data_complete.loc[lambda df: df[u'银行账户编号'] == 'FA4A94F378190B6C893E5F45095BE29B'] 
 
     for date in anomalous_ys:
+	print("The date when anomalous transactions occur is: ")
+	print(date)
         anomalous_trans = data_complete.loc[lambda df: df[u'记账日期'] == date]
-        anomalous_trans = anomalous_trans.sort_values(by = u"交易金额", ascending = False).take([i for i in range(10)]).iloc([0, 1, 3, 12, 16])
-        print(anomalous_trans.tolist())
+        anomalous_trans = anomalous_trans.sort_values(by = u"交易金额", ascending = False)
+	length = anomalous_trans.shape[0]
+	if length > 5:
+	    anomalous_trans = anomalous_trans.take([i for i in range(5)])
+	anomalous_trans = anomalous_trans.loc[:, [u'事件编号',u'银行账户编号',u'交易套号',u'记账日期', u'交易金额']]
+        print(anomalous_trans.to_string())
 
     '''
     for date in anomalous_ys:
