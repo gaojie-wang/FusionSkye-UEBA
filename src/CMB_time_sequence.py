@@ -162,8 +162,8 @@ def main():
 
     for date in anomalous_ys:
         anomalous_trans = data_complete.loc[lambda df: df[u'记账日期'] == date]
-        anomalous_trans = anomalous_trans.sort_values(by = u"交易金额", ascending = False)
-        print(anomalous_trans.collect())
+        anomalous_trans = anomalous_trans.sort_values(by = u"交易金额", ascending = False).take(10).iloc([0, 1, 3, 12, 16])
+        print(anomalous_trans)
 
     '''
     for date in anomalous_ys:
