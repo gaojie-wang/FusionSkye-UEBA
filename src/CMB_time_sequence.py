@@ -34,10 +34,10 @@ def compare(x, y):
 
 
 def main():
-    path = get_config_file_path("3_accounts.csv", "data")
+    path = get_config_file_path("E29B_account.csv", "data")
     data_tem = pd.read_csv(path,encoding='utf-8')
 
-    x= data_tem[u'3-交易金额']
+    x= data_tem[u'交易金额']
     y= data_tem[u'记账日期']
     
     x = np.log10(abs(x)+0.001)
@@ -163,7 +163,7 @@ def main():
     for date in anomalous_ys:
         anomalous_trans = data_complete.loc[lambda df: df[u'记账日期'] == date]
         anomalous_trans = anomalous_trans.sort_values(by = u"交易金额", ascending = False).take([i for i in range(10)]).iloc([0, 1, 3, 12, 16])
-        print(anomalous_trans)
+        print(anomalous_trans.tolist())
 
     '''
     for date in anomalous_ys:
