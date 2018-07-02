@@ -36,7 +36,7 @@ def compare(x, y):
 def main():
     path = get_config_file_path("E29B_account.csv", "data")
     data_tem = pd.read_csv(path,encoding='utf-8')
-    path = get_config_file_path("E29B_average.csv", "data")
+    path = get_config_file_path("E29B_account_average.csv", "data")
     data_ave = pd.read_csv(path, encoding = 'uft-8')
 
     x= data_tem[u'交易金额']
@@ -71,15 +71,15 @@ def main():
     for i in range(L):
         if i == 0:
             p_average = 0
-	    p_average2 = 0
+	        p_average2 = 0
 
 
             #next 10 days
             future = x[i+1:i+tracking_length+1]
             f_average = np.average(future)
 
-	    future2 = x2[i+1: i + tracking_length + 1]
-	    f_average2 = np.average(future2)
+	        future2 = x2[i+1: i + tracking_length + 1]
+	        f_average2 = np.average(future2)
 
 
         elif i < tracking_length:
@@ -88,39 +88,71 @@ def main():
             past = x[:i]
             p_average = np.average(past)
 
+            past2 = x2[:i]
+            p_average2 = np.average(past2)
+
             #next 10 days
             future = x[i+1:i+tracking_length+1]
             f_average = np.average(future)
+
+            #next 10 days
+            future2 = x2[i+1:i+tracking_length+1]
+            f_average2 = np.average(future2)
+
         elif i >= L - tracking_length:
 
             #past 10 days
             past = x[i - tracking_length:i]
             p_average = np.average(past)
 
+            past2 = x2[i - tracking_length:i]
+            p_average2 = np.average(past2)
+
             #next 10 days
             future = x[i:]
             f_average = np.average(future)
+
+            future2 = x2[i:]
+            f_average2 = np.average(future2)
+
+
         elif i == L-1:
 
             #past 10 days
             past = x[i - tracking_length:i]
             p_average = np.average(past)
 
+            past2 = x2[i - tracking_length:i]
+            p_average2 = np.average(past2)
+
             f_average = 0
+
+            f_average2 = 0
 
         else:
             #past 10 days
             past = x[i - tracking_length:i]
             p_average = np.average(past)
 
+            past2 = x2[i - tracking_length:i]
+            p_average2 = np.average(past2)
+
             #next 10 days
             future = x[i+1:i + tracking_length + 1]
             f_average = np.average(future)
+
+            #next 10 days
+            future2 = x2[i+1:i + tracking_length + 1]
+            f_average2 = np.average(future2)            
+            
+
 
         if compare(p_average, x[i]) and compare(f_average, x[i]):
             anomalous_dates.append([y[i], p_average/x[i] * 100, f_average/x[i] * 100])
             anomalous_ys.append(y[i])
             anomalous_xs.append(x[i])
+            anomalous_past_averages.append(p_average2)
+            anomalous_future_averages.append(f_average2)
 
 
         elif compare(p_average, x[i]) and not compare(f_average, x[i]):
@@ -143,7 +175,7 @@ def main():
     
     print("The total number of anomalous dates is: {}".format(len(anomalous_dates)))
 
-    
+    '''
     print("These are the possible dates of business changes: ")
 
     
@@ -162,7 +194,7 @@ def main():
 
     print(turning_ys)
     print(turning_xs)
-
+    '''
 
     '''
     plt.plot(y, x)
@@ -178,15 +210,20 @@ def main():
     data_complete[u'记账日期']=pd.to_datetime(data_complete[u'记账日期'])
     data_complete = data_complete.loc[lambda df: df[u'银行账户编号'] == 'FA4A94F378190B6C893E5F45095BE29B'] 
 
-    for date in anomalous_ys:
-	print("The date when anomalous transactions occur is: ")
-	print(date)
+    for date, p_average, f_average in anomalous_ys, anomalous_past_averages, anomalous_future_averages:
+	   print("The date when anomalous transactions occur is: ")
+	   print(date)
         anomalous_trans = data_complete.loc[lambda df: df[u'记账日期'] == date]
-        anomalous_trans = anomalous_trans.sort_values(by = u"交易金额", ascending = False)
-	length = anomalous_trans.shape[0]
-	if length > 5:
+
+        #anomalous_trans = anomalous_trans.sort_values(by = u"交易金额", ascending = False)
+        anomalous_trans["diff"] = anomalous_trans[u"交易金额"].map(lambda a: abs(a - p_average) + abs(a - f_average))
+	    anomalous_trans = anomalous_trans.sort_values(by = "diff", ascending = False)
+
+    length = anomalous_trans.shape[0]
+	
+    if length > 5:
 	    anomalous_trans = anomalous_trans.take([i for i in range(5)])
-	anomalous_trans = anomalous_trans.loc[:, [u'事件编号',u'银行账户编号',u'交易套号',u'记账日期', u'交易金额']]
+	    anomalous_trans = anomalous_trans.loc[:, [u'事件编号',u'银行账户编号',u'交易套号',u'记账日期', u'交易金额']]
         print(anomalous_trans.to_string())
 
     '''
