@@ -111,7 +111,7 @@ def main():
             turning_ys.append(y[i])
             turning_xs.append(x[i])
 
-    '''
+    
     print("These are the anomalous dates we found: ")
 
 
@@ -120,10 +120,10 @@ def main():
         diff_past = data[1]
         diff_future = data[2]
         print("The anomalous date is: {}".format(date))
-        print("The average of past {1} days is: {2} percent of today".format(tracking_length, diff_past))
-        print("The average of next {1} days is: {2} percent of today".format(tracking_length, diff_future))
+        print("The average of past {0} days is: {1} percent of today".format(tracking_length, diff_past))
+        print("The average of next {0} days is: {1} percent of today".format(tracking_length, diff_future))
         print("\n")
-    '''
+    
     print("The total number of anomalous dates is: {}".format(len(anomalous_dates)))
 
     
@@ -146,6 +146,7 @@ def main():
     print(turning_ys)
     print(turning_xs)
 
+
     '''
     plt.plot(y, x)
     plt.scatter(anomalous_ys, anomalous_xs, marker = "o", color = "red", s = 400)
@@ -162,11 +163,17 @@ def main():
     for date in anomalous_ys:
         anomalous_trans = data_complete.loc[lambda df: df[u'记账日期'] == date]
         anomalous_trans = anomalous_trans.sort_values(by = u"交易金额", ascending = False)
+        print(anomalous_trans.collect())
+
+    '''
+    for date in anomalous_ys:
+        anomalous_trans = data_complete.loc[lambda df: df[u'记账日期'] == date]
+        anomalous_trans = anomalous_trans.sort_values(by = u"交易金额", ascending = False)
 
     for date in turning_ys:
         turning_trans = data_complete.loc[lambda df: df[u'记账日期'] == date]
-
-
+    '''
+    '''
     accountA = "0748E52AB705B4B3D12F057BDEFD898E"
     accountB = "FA4A94F378190B6C893E5F45095BE29B"
     accountC = "0DDA75B3AAED571183C62DC7CA00EC48"
@@ -182,23 +189,24 @@ def main():
     to_plot_balances = []
 
     for date in y:
+        #print(date)
         amountA = 0
         amountB = 0
         amountC = 0
         if date in A[u'记账日期']:
             dA = datagbA.get_group(date).sort_values(by = u'交易记录时间')
-            amountA = dA.last()[u'联机余额']
+            amountA = float(dA.last()[u'联机余额'])
         if date in B[u'记账日期']:
             dB = datagbB.get_group(date).sort_values(by = u'交易记录时间')
-            amountB = dB.last()[u'联机余额']
+            amountB = float(dB.last()[u'联机余额'])
         if date in C[u'记账日期']:
             dC = datagbC.get_group(date).sort_values(by = u'交易记录时间')
-            amountC = dc.last()[u'联机余额']
+            amountC = float(dc.last()[u'联机余额'])
 
 
-        to_plot_balances.append(amountA + accountB + amountC)
-        print(to_plot_balances)
-
+        to_plot_balances.append(amountA + amountB + amountC)
+        #print(to_plot_balances)
+    '''
 
 if __name__ == "__main__":
     main()
