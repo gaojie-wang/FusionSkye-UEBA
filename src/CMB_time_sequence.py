@@ -210,7 +210,7 @@ def main():
     data_complete[u'记账日期']=pd.to_datetime(data_complete[u'记账日期'])
     data_complete = data_complete.loc[lambda df: df[u'银行账户编号'] == 'FA4A94F378190B6C893E5F45095BE29B'] 
 
-    for date, p_average, f_average in anomalous_ys, anomalous_past_averages, anomalous_future_averages:
+    for date, p_average, f_average in zip(anomalous_ys, anomalous_past_averages, anomalous_future_averages):
 	   print("The date when anomalous transactions occur is: ")
 	   print(date)
         anomalous_trans = data_complete.loc[lambda df: df[u'记账日期'] == date]
