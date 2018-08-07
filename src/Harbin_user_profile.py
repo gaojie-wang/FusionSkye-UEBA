@@ -87,7 +87,7 @@ class User():
 			self.facts[field] = fact_dict[field]
 
 	#Add a formula to the collection of formulas
-	def addFormula(self, formula):
+	def addLocalFormula(self, formula):
 		self.formulas.append(formula)
 
 	def addLocalTag(self, name, value = False):
@@ -148,6 +148,7 @@ class User():
 
 def testScript():
 	context = UserProfileContext()
+	
 	def f1(inputs):
 		output = dict()
 		output["square"] = float(inputs["score"]) * float(inputs["score"])
@@ -161,7 +162,7 @@ def testScript():
 
 	user_1.addLocalNumerical("square")
 
-	user_1.addFormula(formula_1)
+	user_1.addLocalFormula(formula_1)
 
 	user_1.update()
 
