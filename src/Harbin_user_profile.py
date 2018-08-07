@@ -1,15 +1,7 @@
 # -*- coding: utf-8 -*-
 
-
-import matplotlib.pylab as plt
-from matplotlib.font_manager import FontProperties
-from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
 import numpy as np
-import time
-import sys, os 
-from keras.utils import to_categorical
-from sklearn.preprocessing import LabelEncoder
 import csv 
 from ML_Package import *
 from operator import itemgetter
@@ -148,7 +140,7 @@ class User():
 
 def testScript():
 	context = UserProfileContext()
-	
+
 	def f1(inputs):
 		output = dict()
 		output["square"] = float(inputs["score"]) * float(inputs["score"])
